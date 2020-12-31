@@ -22,7 +22,23 @@ app.get("/repositories", (request, response) => {
 });
 
 app.post("/repositories", (request, response) => {
-  //TODO
+    
+  const { title, url, techs,  likes } = request.body;
+
+  const repository = { id: uuid(), title, url, techs, likes }
+
+  if (!isUuid(repository.id)) {
+    return response.status(400).json({error: "Invalid ID"})
+  }
+
+  if (repository.likes !== 0) {
+    repository.likes = 0;
+    console.log('Atualizando o valor do like')
+  }
+
+  repositories.push(repository);
+
+  return response.json(repository);
 
 
 });
