@@ -12,20 +12,21 @@ const repositories = [];
 
 app.get("/repositories", (request, response) => {
   
-  const  { title } = request.query;
+  return response.json(repositories);
 
-  const results = title
-    ? repositories.filter(repository => repository.title.includes(title))
-    : repositories;
-
-    return response.json(results);
 });
 
 app.post("/repositories", (request, response) => {
     
-  const { title, url, techs,  likes } = request.body;
+  const { title, url, techs } = request.body;
 
-  const repository = { id: uuid(), title, url, techs, likes }
+  const repository = { 
+    id: uuid(), 
+    title, 
+    url, 
+    techs, 
+    likes: 0,
+   }
 
   if (!isUuid(repository.id)) {
     return response.status(400).json({error: "Invalid ID"})
@@ -33,7 +34,6 @@ app.post("/repositories", (request, response) => {
 
   if (repository.likes !== 0) {
     repository.likes = 0;
-    console.log('Atualizando o valor do like')
   }
 
   repositories.push(repository);
@@ -59,6 +59,7 @@ app.put("/repositories/:id", (request, response) => {
     title,
     url,
     techs,
+    likes: repositories[repositoryIndex].likes,
   };
 
   repositories[repositoryIndex] = repository;
@@ -83,7 +84,21 @@ app.delete("/repositories/:id", (request, response) => {
 });
 
 app.post("/repositories/:id/like", (request, response) => {
-  // TODO
+  
+  const { id } = request.params;
+  const { likes } = request.body;
+
+  const repositoryIndex = repositories.findIndex(repository => repository.id === id);
+
+  if (repositoryIndex < 0) {
+    return response.status(400).json({error: "Repository not found"})
+  }
+
+  repositories[repositoryIndex].likes +=1;
+  
+  return response.json(repositories[repositoryIndex]);
+ 
+
 });
 
 module.exports = app;
